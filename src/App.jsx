@@ -8,6 +8,7 @@ import HowItWorksFlow from './components/HowItWorksFlow';
 import Footer from './components/Footer';
 import { analyzeText } from './engine/analyzer';
 import { analyzeWithGemini } from './engine/geminiService';
+import { analyzeWithKimi } from './engine/kimiService';
 
 export default function App() {
   const [report, setReport] = useState(null);
@@ -15,6 +16,7 @@ export default function App() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState(null);
   const [mode, setMode] = useState('rules'); // 'rules' | 'ai'
+  const [aiEngine, setAiEngine] = useState('gemini'); // 'gemini' | 'kimi'
 
   const handleAnalyze = async (text) => {
     if (mode === 'rules') {
@@ -33,7 +35,9 @@ export default function App() {
       setReport(null);
 
       try {
-        const result = await analyzeWithGemini(text);
+        const result = aiEngine === 'kimi'
+          ? await analyzeWithKimi(text)
+          : await analyzeWithGemini(text);
         setAiResult(result);
       } catch (err) {
         setAiError(err.message);
@@ -54,6 +58,8 @@ export default function App() {
           mode={mode}
           onModeChange={setMode}
           isAnalyzing={aiLoading}
+          aiEngine={aiEngine}
+          onAiEngineChange={setAiEngine}
         />
         {mode === 'rules' && report && <XRayView report={report} />}
         {mode === 'ai' && (

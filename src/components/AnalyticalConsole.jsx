@@ -4,7 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
-export default function AnalyticalConsole({ onAnalyze, mode, onModeChange, isAnalyzing }) {
+export default function AnalyticalConsole({ onAnalyze, mode, onModeChange, isAnalyzing, aiEngine, onAiEngineChange }) {
   const [text, setText] = useState('');
   const sectionRef = useRef(null);
   const headerRef = useRef(null);
@@ -91,15 +91,39 @@ export default function AnalyticalConsole({ onAnalyze, mode, onModeChange, isAna
             <div className="h-2.5 w-2.5 rounded-full bg-lime-400" />
             <span className="ml-2 text-xs text-slate-600">
               {mode === 'ai'
-                ? 'trustlens://gemini-ai-scanner • real-time verification'
+                ? `trustlens://${aiEngine === 'kimi' ? 'kimi-nim-scanner' : 'gemini-ai-scanner'} • real-time verification`
                 : 'trustlens://credibility-scanner'}
             </span>
           </div>
 
+          {mode === 'ai' && (
+            <div className="flex items-center justify-end border-b border-white/30 bg-white/10 px-4 py-2">
+              <span className="mr-3 text-xs font-medium text-slate-500 uppercase tracking-wide">AI Engine:</span>
+              <div className="flex rounded-lg border border-white/40 bg-white/30 p-1">
+                <button
+                  className={`rounded-md px-3 py-1 text-xs font-semibold transition ${
+                    aiEngine === 'gemini' ? 'bg-white text-summer-blue shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                  onClick={() => onAiEngineChange('gemini')}
+                >
+                  Gemini 2.5 Flash
+                </button>
+                <button
+                  className={`rounded-md px-3 py-1 text-xs font-semibold transition ${
+                    aiEngine === 'kimi' ? 'bg-white text-summer-orange shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                  onClick={() => onAiEngineChange('kimi')}
+                >
+                  Kimi-k2.5 (NIM)
+                </button>
+              </div>
+            </div>
+          )}
+
           <textarea
             className="min-h-[220px] w-full resize-y bg-transparent px-5 py-5 text-sm leading-7 text-slate-800 outline-none placeholder:text-slate-500"
             placeholder={mode === 'ai'
-              ? "Paste your text here for AI-powered credibility analysis...\n\nGemini AI will:\n• Analyze manipulation patterns\n• Search real-time news to verify claims\n• Cross-reference with authoritative sources\n• Provide claim-by-claim verification"
+              ? `Paste your text here for AI-powered credibility analysis...\n\n${aiEngine === 'kimi' ? 'Kimi AI' : 'Gemini AI'} will:\n• Analyze manipulation patterns\n• Search real-time news to verify claims\n• Cross-reference with authoritative sources\n• Provide claim-by-claim verification`
               : "Paste your text here for credibility analysis...\n\nExamples of content to analyze:\n• News articles or social media posts\n• Health or medical claims\n• Financial advice or investment tips\n• Any suspicious online content"
             }
             value={text}
